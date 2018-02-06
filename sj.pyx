@@ -9,33 +9,33 @@ from mpl_toolkits.mplot3d import Axes3D
 import seaborn as sns
 from time import time
 from matplotlib import animation
+cimport numpy as np
 
 # functions
-s = time()
 # Jupiter
-a_jup = 5.204            # Semi-major-axis (units of AU)
-e_jup = 0.0489           # Eccentricity 
+cdef float a_jup = 5.204            # Semi-major-axis (units of AU)
+cdef float e_jup = 0.0489           # Eccentricity 
 
 # Saturn
-a_sat = 9.582          # Semi-major-axis (units of AU)
-e_sat = 0.0565           # Eccentricity
+cdef float a_sat = 9.582          # Semi-major-axis (units of AU)
+cdef float e_sat = 0.0565           # Eccentricity
 
-G = 4*np.pi**2           # Gravitational constant (units of M_sun, AU and year)
-M_sun = 1.               # Solar mass 
-M_j = 1/1047.*M_sun      # Fraction of M_sun
-M_s = 568.34*10**24/(1.989*10**30)*M_sun      # Fraction of M_sun 568.34
-h = 0.01
+cdef float G = 4*np.pi**2           # Gravitational constant (units of M_sun, AU and year)
+cdef float M_sun = 1.               # Solar mass 
+cdef float M_j = 1/1047.*M_sun      # Fraction of M_sun
+cdef float M_s = 568.34*10**24/(1.989*10**30)*M_sun      # Fraction of M_sun 568.34
+cdef float h = 0.01
 
-def jupiter(time,h):
+def jupiter(np.float time,np.float h):
     '''This function applies the Euler-Cromer (or Symplectic Integrator) 
     method for solving differntial equations'''
     # position and velocity arrays 
-    n = int(time/h)
-    r_jup = np.zeros((3,n),dtype=np.float64)
-    v_jup = np.zeros((3,n),dtype=np.float64)
-    radius = np.zeros(n,dtype=np.float64)
-    accel_sun = np.zeros(n,dtype=np.float64)
-
+    cdef int n = int(time/h)
+    cdef np.ndarray r_jup = np.zeros((3,n),dtype=np.float64)
+    cdef np.ndarray v_jup = np.zeros((3,n),dtype=np.float64)
+    cdef np.ndarray radius = np.zeros(n,dtype=np.float64)
+    cdef np.ndarray accel_sun = np.zeros(n,dtype=np.float64)
+    cdef int t
     # initial conditions
 
     r_jup[0,0] = 0.0
@@ -54,17 +54,17 @@ def jupiter(time,h):
     return r_jup,v_jup
 
 
-def saturn(time,h):
+def saturn(np.float time,np.float h):
     '''This function applies the Euler-Cromer (or Symplectic Integrator) 
     method for solving differntial equations'''
 
     # position and velocity arrays
-    n = int(time/h)  
-    r_sat = np.zeros((3,n),dtype=np.float64)
-    v_sat = np.zeros((3,n),dtype=np.float64)
-    radius = np.zeros(n,dtype=np.float64)
-    accel_sun = np.zeros(n,dtype=np.float64)
-    
+    cdef int n = int(time/h)  
+    cdef np.ndarray r_sat = np.zeros((3,n),dtype=np.float64)
+    cdef np.ndarray v_sat = np.zeros((3,n),dtype=np.float64)
+    cdef np.ndarray radius = np.zeros(n,dtype=np.float64)
+    cdef np.ndarray accel_sun = np.zeros(n,dtype=np.float64)
+    cdef int t
     # initial conditions
     r_sat[0,0] = 0.0
     r_sat[1,0] = a_sat*(1-e_sat)
@@ -82,23 +82,24 @@ def saturn(time,h):
     return r_sat,v_sat
 
 
-def symplectic_astroid(time,h):
+def symplectic_astroid(np.float time, np.float h):
      '''This function applies the Euler-Cromer (or Symplectic Integrator) 
      method for solving differntial equations'''
-     n = int(time/h)  
-     r = np.zeros((3,n),dtype=np.float64)
-     v = np.zeros((3,n),dtype=np.float64)
-     radius = np.zeros(n,dtype=np.float64)
-     radius_j = np.zeros(n,dtype=np.float64)
-     radius_s = np.zeros(n,dtype=np.float64)
-     accel_sun = np.zeros(n,dtype=np.float64)
-     accel_j = np.zeros(n,dtype=np.float64)
-     accel_s = np.zeros(n,dtype=np.float64)
-     radius0 = np.random.uniform(2.0,3.5)
-     theta0 = np.random.uniform(0.0,2*np.pi)
+     cdef int n = int(time/h)  
+     cdef np.ndarray r = np.zeros((3,n),dtype=np.float64)
+     cdef np.ndarray v = np.zeros((3,n),dtype=np.float64)
+     cdef np.ndarray radius = np.zeros(n,dtype=np.float64)
+     cdef np.ndarray radius_j = np.zeros(n,dtype=np.float64)
+     cdef np.ndarray radius_s = np.zeros(n,dtype=np.float64)
+     cdef np.ndarray accel_sun = np.zeros(n,dtype=np.float64)
+     cdef np.ndarray accel_j = np.zeros(n,dtype=np.float64)
+     cdef np.ndarray accel_s = np.zeros(n,dtype=np.float64)
+     cdef float radius0 = np.random.uniform(2.0,3.5)
+     cdef float theta0 = np.random.uniform(0.0,2*np.pi)
+     cdef np.ndarray r_j,v_j,r_s,v_s
      r_j,v_j = jupiter(time,h)
      r_s,v_s = saturn(time,h)
-
+     cdef int t
      
      r[0,0] = radius0*np.cos(theta0)
      r[1,0] = radius0*np.sin(theta0)
@@ -127,24 +128,24 @@ def symplectic_astroid(time,h):
          return r, v, radius
 
 
-def plotting(time,h,number=1,zoom=6.0):
+def plotting(np.float time,np.float h,np.int number=1,np.int zoom=6.0):
     fig = plt.figure(figsize=(20,10)) 
     ax = fig.add_subplot(111, projection='3d')
-    r_j,v_j = jupiter(time,h)
+    cdef np.ndarray r_j,v_j,r_s,v_s,r_as,v_as,rad_as
+    r_j,v_j= jupiter(time,h)
     r_s,v_s = saturn(time,h)
     ax.plot(*r_j)
     ax.plot(*r_s)
-    
+    cdef int i
     for i in range(number):
-        r_as, v_as, rad_as = symplectic_astroid(time,h)
-        
+        r_as,v_as,rad_as = symplectic_astroid(time,h)
         if (r_as.any() == True):
             ax.plot(*r_as)
         
     x = r_as[0,:]
     y = r_as[1,:]
     z = r_as[2,:]
-    radius = rad_as
+    cdef np.ndarray radius = rad_as
     np.savetxt('jupiterandsaturnasteroidData.txt', np.c_[x, y, z, radius])
     ax.set_xlabel("x position", fontsize=16)
     ax.set_ylabel("y position",fontsize=16)
