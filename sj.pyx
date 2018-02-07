@@ -113,8 +113,8 @@ def symplectic_astroid(np.float time, np.float h):
          radius[t] = np.sqrt( np.sum(r[:,t]**2))
          
          if (radius[t] < 1 or radius[t] > 5) : 
-             #r = np.delete(r, (0,1,2), axis=0)
-             #v = np.delete(v, (0,1,2), axis=0)
+             r = np.delete(r, (0,1,2), axis=0)
+             v = np.delete(v, (0,1,2), axis=0)
              break
          
          radius_j[t] = np.sqrt(np.sum((r[:,t]-r_j[:,t])**2))
@@ -146,7 +146,7 @@ def plotting(np.float time,np.float h,np.int number=1,np.int zoom=6.0):
     y = r_as[1,:]
     z = r_as[2,:]
     cdef np.ndarray radius = rad_as
-    np.savetxt('jupiterandsaturnasteroidData.txt', np.c_[x, y, z, radius])
+    np.c_[x, y, z, radius]
     ax.set_xlabel("x position", fontsize=16)
     ax.set_ylabel("y position",fontsize=16)
     ax.legend(loc = 'best', fontsize = 15)
@@ -157,5 +157,5 @@ def plotting(np.float time,np.float h,np.int number=1,np.int zoom=6.0):
     ax.set_ylim(-zoom,zoom)
     ax.set_zlim(-0.1,0.1)
     plt.show()
-    
+    return np.c_[x, y, z, radius]
 
